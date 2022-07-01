@@ -1,4 +1,4 @@
-﻿//Version       : 1.0.0
+//Version       : 1.0.2
 //Author        : Nuliax
 //Description   : Default app installer to associate with file/protocol type in Windows 10/11.
 //Origin        : https://github.com/DanysysTeam/PS-SFTA
@@ -6,6 +6,7 @@
 //Copyright     : 2022 Inseries.dev
 
 using Microsoft.Win32;
+using System.Security.AccessControl;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
@@ -20,17 +21,25 @@ namespace InseriesDEV
         {
             try
             {
-                using RegistryKey? key = Registry.CurrentUser.OpenSubKey(registrySubKey, true);
+                using RegistryKey? removableKey = Registry.CurrentUser.OpenSubKey(registrySubKey, RegistryRights.Delete);
 
-                if (key == null)
+                if (removableKey != null)
+                {
+                    removableKey.Close();
+                    Registry.CurrentUser.DeleteSubKey(registrySubKey);
+                }
+
+                using RegistryKey? updatableKey = Registry.CurrentUser.CreateSubKey(registrySubKey, true);
+
+                if (updatableKey == null)
                     return $"Registry key for \"{assocType}\" not found.";
 
                 if (GenerateHash(progId, assocType) is not string hash)
                     return "Hash generation failed.";
 
-                key.SetValue("Hash", hash, RegistryValueKind.String);
-                key.SetValue("ProgId", progId, RegistryValueKind.String);
-                key.Close();
+                updatableKey.SetValue("Hash", hash, RegistryValueKind.String);
+                updatableKey.SetValue("ProgId", progId, RegistryValueKind.String);
+                updatableKey.Close();
                 return string.Empty;
             }
             catch (Exception e)
