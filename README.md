@@ -1,6 +1,6 @@
 # C# DefaultSetter
 
-[![Latest Version](https://img.shields.io/badge/Latest-v1.0.0-green.svg)]()
+[![Latest Version](https://img.shields.io/badge/Latest-v1.0.2-green.svg)]()
 [![MIT License](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 
 Default app installer to associate with file/protocol type in Windows 10/11.
